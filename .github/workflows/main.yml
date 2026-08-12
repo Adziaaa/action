@@ -1,25 +1,26 @@
-
 name: Main workflow
 on: push
+
 jobs:
   Build:
     runs-on: ubuntu-latest
     container: gradle:6-jdk11
     steps:
       - name: Clone down repository
-        uses: actions/checkout@v4       
+        uses: actions/checkout@v4
       - name: Build application
         run: ci/build-app.sh
       - name: Test
         run: ci/unit-test-app.sh
-      - uses: actions/upload-artifact@v4
-        with: 
-          name: code
-          path: .
-          include-hidden-files: true
       - name: Upload repo
         uses: actions/upload-artifact@v4
-        with: 
+        with:
           name: code
           path: .
           include-hidden-files: true
+      - name: Run linting
+        uses: super-linter/super-linter/slim@v7
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISABLE_ERRORS: true
